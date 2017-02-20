@@ -2,7 +2,7 @@
 
 namespace KmeansAlgorithm
 {
-    public static class extensions
+    public static class Extensions
     {
         public static void Times(this int i, Action action)
         {

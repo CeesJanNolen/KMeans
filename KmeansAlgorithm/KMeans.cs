@@ -12,13 +12,14 @@ namespace KmeansAlgorithm
         public Dictionary<int, GenericVector> Centroids;
         private readonly Random _random = new Random();
 
-
+        //the method to run the KMeans algorithm
         public void Run()
         {
             Centroids = GenerateRandomCentroids(Clusters);
             //for loop Iterations
             for (var i = 0; i < Iterations; i++)
             {
+                //storing the old cluster to compare it later on.
                 var oldCluster = Dataset.Select(v => v.Cluster).ToList();
 
                 //assign data set
@@ -27,26 +28,20 @@ namespace KmeansAlgorithm
                 //recalculate clusters
                 RecalculateCenteroids();
 
+                //check if the cluster is still changing
                 if (!ClustersChanged(oldCluster, Dataset.Select(v => v.Cluster).ToList()))
-                {
-
-                    Console.WriteLine(i);
                     break;
-                }
-//                    break;
             }
         }
 
-        public void AssignDataset()
+        //assign the vectors to the clusters nearby
+        private void AssignDataset()
         {
             Dataset.ForEach(vector => vector.Cluster = GetNearestCluster(vector));
-            foreach (var vector in Dataset)
-            {
-                vector.Cluster = GetNearestCluster(vector);
-            }
         }
 
-        public int GetNearestCluster(GenericVector vector)
+        //get nearest cluster
+        private int GetNearestCluster(GenericVector vector)
         {
             var clusterid = Centroids
                 .OrderBy(v => GenericVector.Distance(vector, v.Value))
@@ -55,7 +50,8 @@ namespace KmeansAlgorithm
             return clusterid;
         }
 
-        public Dictionary<int, GenericVector> GenerateRandomCentroids(int clusters)
+        //generate random centroids for the first time
+        private Dictionary<int, GenericVector> GenerateRandomCentroids(int clusters)
         {
             var centroids = new Dictionary<int, GenericVector>();
             var index = 0;
@@ -63,29 +59,34 @@ namespace KmeansAlgorithm
             return centroids;
         }
 
-        public bool ClustersChanged(List<int> a, List<int> b)
+        //check if the clusters changed
+        private static bool ClustersChanged(IEnumerable<int> a, IReadOnlyList<int> b)
         {
             return a.Where((value, index) => value != b[index]).Any();
         }
 
-        public void RecalculateCenteroids()
+        //recalculate the new centroids based on the mean
+        private void RecalculateCenteroids()
         {
-            foreach (var centroid in Centroids.Keys.ToList())
+            foreach (var centroidkey in Centroids.Keys.ToList())
             {
-                var cluster = Dataset.Where(v => v.Cluster == centroid).ToList();
+                var cluster = Dataset.Where(v => v.Cluster == centroidkey).ToList();
 
-                Centroids[centroid] = cluster
+                //generating a new genericvector with the mean of the existing vectors
+                Centroids[centroidkey] = cluster
                     .Aggregate(new GenericVector(Dataset.First().Size),
                         (current, y) => current.Sum(y))
                     .Devide(cluster.Count);
             }
         }
 
-        public GenericVector RandomVector()
+        //get a random vector
+        private GenericVector RandomVector()
         {
             return Dataset[_random.Next(Dataset.Count)];
         }
 
+        //print the clusters to the console.
         public void PrintClusters()
         {
             var clusters = Dataset.GroupBy(v => v.Cluster);
@@ -94,5 +95,24 @@ namespace KmeansAlgorithm
                 Console.WriteLine("Cluster " + cluster.ElementAt(0).Cluster + " has " + cluster.Count());
             }
         }
+
+        /*
+        TODO
+        QUESTIONS
+        - DO WE ALSO NEED TO IMPLEMENT THE ALGORITHMS WE LEARNED TO CHECK THE KMEANS?
+        - CHECK IF STOPPED MOVING OR ALSO THE CHECK IF CENTROIDS ARENT CHANGED?
+        - RANDOM: HOW TO DETERMINE THE FIRST RANDOM CENTROID? IS IT OK TO GET A VECTOR FROM THE ACTUAL SET?
+        */
     }
+
+
+    /*
+        ASK SSE
+        loop every k (cluster)
+        loop every item in the cluster
+        get the distance between item and clustercenter
+        sum all those (first square it??)
+
+    */
+
 }
