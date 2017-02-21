@@ -64,21 +64,16 @@ namespace KmeansAlgorithm
             return string.Join("\n", Points.Select(x => x.ToString()).ToArray());
         }
 
-        public bool IsBiggerAs(GenericVector v)
-        {
-            return Points.Where((p, i) => p > v.Points[i]).Count() > Points.Count;
-        }
-
         public float BiggestPoint()
         {
             return Points.Max();
         }
 
-        public GenericVector Devide(int devider)
+        public GenericVector Divide(int divider)
         {
             for (var i = 0; i < Size; i++)
             {
-                Points[i] = Points[i] / devider;
+                Points[i] = Points[i] / divider;
             }
             return this;
         }

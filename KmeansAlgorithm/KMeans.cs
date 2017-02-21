@@ -26,7 +26,7 @@ namespace KmeansAlgorithm
                 AssignDataset();
 
                 //recalculate clusters
-                RecalculateCenteroids();
+                RecalculateCentroids();
 
                 //check if the cluster is still changing
                 if (!ClustersChanged(oldCluster, Dataset.Select(v => v.Cluster).ToList()))
@@ -66,7 +66,7 @@ namespace KmeansAlgorithm
         }
 
         //recalculate the new centroids based on the mean
-        private void RecalculateCenteroids()
+        private void RecalculateCentroids()
         {
             foreach (var centroidkey in Centroids.Keys.ToList())
             {
@@ -76,7 +76,7 @@ namespace KmeansAlgorithm
                 Centroids[centroidkey] = cluster
                     .Aggregate(new GenericVector(Dataset.First().Size),
                         (current, y) => current.Sum(y))
-                    .Devide(cluster.Count);
+                    .Divide(cluster.Count);
             }
         }
 
