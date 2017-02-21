@@ -33,8 +33,11 @@ namespace KmeansAlgorithm
                 Dataset = dataDictionary.Values.ToList(),
                 Clusters = 4
             };
-            kMeans.Run();
-            kMeans.PrintClusters();
+            for (var i = 0; i < 25; i++)
+            {
+                kMeans.Run();
+                kMeans.PrintClustersInLine();
+            }
         }
     }
 }

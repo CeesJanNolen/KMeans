@@ -89,11 +89,20 @@ namespace KmeansAlgorithm
         //print the clusters to the console.
         public void PrintClusters()
         {
-            var clusters = Dataset.GroupBy(v => v.Cluster);
+            var clusters = Dataset.GroupBy(v => v.Cluster).ToList().OrderBy(v => v.Key);
             foreach (var cluster in clusters)
             {
                 Console.WriteLine("Cluster " + cluster.ElementAt(0).Cluster + " has " + cluster.Count());
             }
+        }
+        public void PrintClustersInLine()
+        {
+            var clusters = Dataset.GroupBy(v => v.Cluster).ToList().OrderBy(v => v.Key);
+            foreach (var cluster in clusters)
+            {
+                Console.Write(cluster.ElementAt(0).Cluster + " -> " + cluster.Count() + " || ");
+            }
+            Console.WriteLine();
         }
 
         /*
