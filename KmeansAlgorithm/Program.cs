@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -26,18 +27,27 @@ namespace KmeansAlgorithm
                 }
             }
 
+            var kMeanses = new List<KMeans>();
             //init kmeans ad run it.
-            var kMeans = new KMeans
+            for (var i = 0; i < 1; i++)
             {
-                Iterations = 100,
-                Dataset = dataDictionary.Values.ToList(),
-                Clusters = 4
-            };
-            for (var i = 0; i < 25; i++)
-            {
+                var kMeans = new KMeans
+                {
+                    Iterations = 100,
+                    Dataset = dataDictionary.Values.ToList(),
+                    Clusters = 4
+                };
                 kMeans.Run();
-                kMeans.PrintClustersInLine();
+//                kMeans.PrintClustersInLine();
+                kMeanses.Add(kMeans);
             }
+
+
+            var lowestKmeans = kMeanses.Aggregate(
+                (minItem, nextItem) => minItem.SSE < nextItem.SSE ? minItem : nextItem);
+            lowestKmeans.PrintClusterInfo();
+
+
         }
     }
 }

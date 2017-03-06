@@ -61,7 +61,7 @@ namespace KmeansAlgorithm
         //Override ToString-Method to show the content of the GenericVector
         public override string ToString()
         {
-            return string.Join("\n", Points.Select(x => x.ToString()).ToArray());
+            return string.Join("\t", Points.Select(x => x.ToString()).ToArray());
         }
 
         public float BiggestPoint()
@@ -91,6 +91,11 @@ namespace KmeansAlgorithm
                 summedVector.Points[i] = vectorA.Points[i] + vectorB.Points[i];
             }
             return summedVector;
+        }
+
+        public static bool NotEqual(GenericVector a, GenericVector b)
+        {
+            return a.Points.Where((value, index) => value != b.Points[index]).Any();
         }
 
         public static float DotProduct(GenericVector vectorA, GenericVector vectorB)

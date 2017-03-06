@@ -1,26 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace KmeansAlgorithm
 {
     public class KMeans
     {
-        public List<GenericVector> Dataset;
         public int Iterations;
         public int Clusters;
+        public double SSE;
+        public List<GenericVector> Dataset;
         public Dictionary<int, GenericVector> Centroids;
         private readonly Random _random = new Random();
+        private int _i;
 
         //the method to run the KMeans algorithm
         public void Run()
         {
             Centroids = GenerateRandomCentroids(Clusters);
+
             //for loop Iterations
-            for (var i = 0; i < Iterations; i++)
+            for (_i = 0; _i < Iterations; _i++)
             {
-                //storing the old cluster to compare it later on.
-                var oldCluster = Dataset.Select(v => v.Cluster).ToList();
+                //storing the old centroids to compare it later on.
+                var oldCentroids = Centroids.Values.ToList();
 
                 //assign data set
                 AssignDataset();
@@ -28,10 +32,11 @@ namespace KmeansAlgorithm
                 //recalculate clusters
                 RecalculateCentroids();
 
-                //check if the cluster is still changing
-                if (!ClustersChanged(oldCluster, Dataset.Select(v => v.Cluster).ToList()))
+                //check if the centroids are still changing
+                if (!CentroidsChanged(oldCentroids, Centroids.Values.ToList()))
                     break;
             }
+            SSE = CalculateSumofSquaredErrors();
         }
 
         //assign the vectors to the clusters nearby
@@ -59,11 +64,12 @@ namespace KmeansAlgorithm
             return centroids;
         }
 
-        //check if the clusters changed
-        private static bool ClustersChanged(IEnumerable<int> a, IReadOnlyList<int> b)
+
+        private static bool CentroidsChanged(IEnumerable<GenericVector> a, IReadOnlyList<GenericVector> b)
         {
-            return a.Where((value, index) => value != b[index]).Any();
+            return a.Where((item, index) => GenericVector.NotEqual(item, b[index])).Any();
         }
+
 
         //recalculate the new centroids based on the mean
         private void RecalculateCentroids()
@@ -83,7 +89,23 @@ namespace KmeansAlgorithm
         //get a random vector
         private GenericVector RandomVector()
         {
-            return Dataset[_random.Next(Dataset.Count)];
+            while (true)
+            {
+                var genericVector = Dataset[_random.Next(Dataset.Count)];
+                var found = false;
+                if (Centroids != null)
+                {
+                    for (var i = 0; i < Centroids.Values.ToList().Count; i++)
+                    {
+                        if (Centroids.Values.ToList()[i] == genericVector)
+                            found = true;
+                    }
+                    if (!found)
+                        return genericVector;
+                }
+                else
+                    return genericVector;
+            }
         }
 
         //print the clusters to the console.
@@ -95,6 +117,7 @@ namespace KmeansAlgorithm
                 Console.WriteLine("Cluster " + cluster.ElementAt(0).Cluster + " has " + cluster.Count());
             }
         }
+
         public void PrintClustersInLine()
         {
             var clusters = Dataset.GroupBy(v => v.Cluster).ToList().OrderBy(v => v.Key);
@@ -105,23 +128,63 @@ namespace KmeansAlgorithm
             Console.WriteLine();
         }
 
+        public void PrintClusterInfo()
+        {
+            Console.WriteLine("KMEANS COMPLETED");
+            Console.WriteLine("SSE = \t\t\t\t" + SSE);
+            Console.WriteLine("amount of clusters: \t\t" + Clusters);
+            Console.WriteLine("amount of max iterations: \t" + Iterations);
+            Console.WriteLine("amount of actual iterations: \t" + _i);
+            Console.WriteLine();
+
+            var clusters = Dataset.GroupBy(v => v.Cluster).ToList().OrderBy(v => v.Key).ToList();
+
+            foreach (var cluster in clusters)
+            {
+                Console.WriteLine("***************************************************");
+                Console.WriteLine("cluster " + cluster.Key + " has " + cluster.Count() + " items");
+                Console.WriteLine("***************************************************");
+                var offersBoughtXTimes = new Dictionary<int, int>();
+                var clusterpoints = cluster.ToList();
+                foreach (var clusterpoint in clusterpoints)
+                {
+                    for (var j = 0; j < clusterpoint.Size; j++)
+                    {
+                        if (Math.Abs(clusterpoint.Points[j] - 1) < 0.001)
+                            if (offersBoughtXTimes.ContainsKey(j))
+                                offersBoughtXTimes[j]++;
+                            else
+                                offersBoughtXTimes.Add(j, 1);
+                    }
+                }
+                offersBoughtXTimes =
+                    (from entry in offersBoughtXTimes orderby entry.Value descending select entry).ToDictionary(
+                        v => v.Key,
+                        v => v.Value);
+                foreach (var offerBought in offersBoughtXTimes)
+                {
+                    if (offerBought.Value >= 3)
+                        Console.WriteLine(
+                            "Offer " + offerBought.Key + 1 + " -> bought " + offerBought.Value + " times ");
+                }
+            }
+            Console.WriteLine();
+        }
+
+        public double CalculateSumofSquaredErrors()
+        {
+            var orderedclusters = Dataset.GroupBy(v => v.Cluster).OrderBy(v => v.Key).ToList();
+            var sse = (from cluster in orderedclusters
+                let clustercenter = Centroids[cluster.Key]
+                from point in cluster
+                select Math.Pow(GenericVector.Distance(clustercenter, point), 2)).Sum();
+            return sse;
+        }
+
         /*
         TODO
         QUESTIONS
-        - DO WE ALSO NEED TO IMPLEMENT THE ALGORITHMS WE LEARNED TO CHECK THE KMEANS?
         - CHECK IF STOPPED MOVING OR ALSO THE CHECK IF CENTROIDS ARENT CHANGED?
-        - RANDOM: HOW TO DETERMINE THE FIRST RANDOM CENTROID? IS IT OK TO GET A VECTOR FROM THE ACTUAL SET?
         */
     }
-
-
-    /*
-        ASK SSE
-        loop every k (cluster)
-        loop every item in the cluster
-        get the distance between item and clustercenter
-        sum all those (first square it??)
-
-    */
-
 }
