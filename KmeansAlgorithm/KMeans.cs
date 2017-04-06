@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace KmeansAlgorithm
 {
@@ -9,7 +8,7 @@ namespace KmeansAlgorithm
     {
         public int Iterations;
         public int Clusters;
-        public double SSE;
+        public double Sse;
         public List<GenericVector> Dataset;
         public Dictionary<int, GenericVector> Centroids;
         private readonly Random _random = new Random();
@@ -36,7 +35,7 @@ namespace KmeansAlgorithm
                 if (!CentroidsChanged(oldCentroids, Centroids.Values.ToList()))
                     break;
             }
-            SSE = CalculateSumofSquaredErrors();
+            Sse = CalculateSumofSquaredErrors();
         }
 
         //assign the vectors to the clusters nearby
@@ -131,7 +130,7 @@ namespace KmeansAlgorithm
         public void PrintClusterInfo()
         {
             Console.WriteLine("KMEANS COMPLETED");
-            Console.WriteLine("SSE = \t\t\t\t" + SSE);
+            Console.WriteLine("SSE = \t\t\t\t" + Sse);
             Console.WriteLine("amount of clusters: \t\t" + Clusters);
             Console.WriteLine("amount of max iterations: \t" + Iterations);
             Console.WriteLine("amount of actual iterations: \t" + _i);
@@ -180,11 +179,5 @@ namespace KmeansAlgorithm
                 select Math.Pow(GenericVector.Distance(clustercenter, point), 2)).Sum();
             return sse;
         }
-
-        /*
-        TODO
-        QUESTIONS
-        - CHECK IF STOPPED MOVING OR ALSO THE CHECK IF CENTROIDS ARENT CHANGED?
-        */
     }
 }

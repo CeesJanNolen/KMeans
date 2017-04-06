@@ -17,13 +17,13 @@ namespace KmeansAlgorithm
                 .ToList();
 
             //flip data and add to genericvector list
-            for (var i = 0; i < lines.Count; i++)
+            foreach (var line in lines)
             {
-                for (var j = 0; j < lines[i].Count; j++)
+                for (var j = 0; j < line.Count; j++)
                 {
                     if (!dataDictionary.ContainsKey(j))
                         dataDictionary[j] = new GenericVector();
-                    dataDictionary[j].Add(lines[i][j]);
+                    dataDictionary[j].Add(line[j]);
                 }
             }
 
@@ -38,13 +38,12 @@ namespace KmeansAlgorithm
                     Clusters = 4
                 };
                 kMeans.Run();
-//                kMeans.PrintClustersInLine();
                 kMeanses.Add(kMeans);
             }
 
 
             var lowestKmeans = kMeanses.Aggregate(
-                (minItem, nextItem) => minItem.SSE < nextItem.SSE ? minItem : nextItem);
+                (minItem, nextItem) => minItem.Sse < nextItem.Sse ? minItem : nextItem);
             lowestKmeans.PrintClusterInfo();
 
 
