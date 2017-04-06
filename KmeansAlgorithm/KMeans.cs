@@ -165,7 +165,7 @@ namespace KmeansAlgorithm
                 {
                     if (offerBought.Value >= 3)
                         Console.WriteLine(
-                            "Offer " + offerBought.Key + 1 + " -> bought " + offerBought.Value + " times ");
+                            "Offer " + (offerBought.Key + 1) + " \t-> bought " + offerBought.Value + " times ");
                 }
             }
             Console.WriteLine();

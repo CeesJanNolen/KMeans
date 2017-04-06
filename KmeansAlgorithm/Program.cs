@@ -29,7 +29,7 @@ namespace KmeansAlgorithm
 
             var kMeanses = new List<KMeans>();
             //init kmeans ad run it.
-            for (var i = 0; i < 1; i++)
+            for (var i = 0; i < 25; i++)
             {
                 var kMeans = new KMeans
                 {
